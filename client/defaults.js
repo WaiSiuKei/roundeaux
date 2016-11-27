@@ -6,4 +6,4 @@ export default {
     stateTransformer: state => state,
     actionTransformer: action => action,
     errorTransformer: error => error
-};
+}

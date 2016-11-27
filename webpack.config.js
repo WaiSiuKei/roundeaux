@@ -17,6 +17,11 @@ const plugins = [
         'process.env': { NODE_ENV: JSON.stringify(nodeEnv) }
     }),
     new webpack.NamedModulesPlugin(),
+    new webpack.ContextReplacementPlugin(/.*/, path.resolve(__dirname, 'node_modules', 'jsondiffpatch'), {
+        '../package.json': './package.json',
+        './formatters': './src/formatters/index.js',
+        './console': './src/formatters/console.js'
+    })
 ];
 
 if (isProd) {
@@ -62,6 +67,7 @@ module.exports = {
     },
     module: {
         rules: [
+            { test: /\.json$/, loader: "json-loader" },
             {
                 test: /\.css$/,
                 use: [

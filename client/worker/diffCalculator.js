@@ -1,6 +1,6 @@
-import { DiffPatcher } from 'jsondiffpatch/src/diffpatcher'
+import jsondiffpatch from 'jsondiffpatch'
 
-const diffpatcher = new DiffPatcher({
+const diffpatcher = jsondiffpatch.create({
     arrays: { detectMove: false },
     objectHash: (o, idx) =>
         typeof o === 'object' && o.hasOwnProperty('id') ? o.id : '$$index:' + idx,
@@ -9,4 +9,7 @@ const diffpatcher = new DiffPatcher({
     typeof context.right[name] !== 'function'
 })
 
-export default diffpatcher
+export default function diff(fromState, toState) {
+    return fromState && toState && diffpatcher.diff(fromState, toState)
+}
+

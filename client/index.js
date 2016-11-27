@@ -1,6 +1,6 @@
-import timer from './timer';
-import defaults from './defaults';
-import { flushBuffer } from './core';
+import timer from './timer'
+import defaults from './defaults'
+import LogWorker from "worker-loader!./worker"
 
 /**
  * Creates logger with following options
@@ -21,7 +21,7 @@ function createLogger(options = {}) {
     const loggerOptions = {
         ...defaults,
         ...options,
-    };
+    }
 
     const {
         stateTransformer,
@@ -29,49 +29,62 @@ function createLogger(options = {}) {
         actionTransformer,
         predicate,
         logErrors,
-        } = loggerOptions;
+        } = loggerOptions
 
     // Return if 'console' object is not defined
     //if (typeof logger === `undefined`) {
-    //    return () => next => action => next(action);
+    //    return () => next => action => next(action)
     //}
 
-    const logBuffer = [];
+    const logBuffer = []
+    const logWorker = new LogWorker()
 
     return ({ getState }) => (next) => (action) => {
         // Exit early if predicate function returns 'false'
         if (typeof predicate === `function` && !predicate(getState, action)) {
-            return next(action);
+            return next(action)
         }
 
-        const logEntry = {};
-        logBuffer.push(logEntry);
+        const logEntry = {}
+        logBuffer.push(logEntry)
 
-        logEntry.started = timer.now();
-        logEntry.startedTime = new Date();
-        logEntry.prevState = stateTransformer(getState());
-        logEntry.action = actionTransformer(action);
+        logEntry.started = timer.now()
+        logEntry.startTime = (new Date()).toISOString()
+        logEntry.prevState = stateTransformer(getState())
+        logEntry.action = actionTransformer(action)
 
-        let returnedValue;
+        let returnedValue
         if (logErrors) {
             try {
-                returnedValue = next(action);
+                returnedValue = next(action)
             } catch (e) {
-                logEntry.error = errorTransformer(e);
+                logEntry.error = errorTransformer(e)
             }
         } else {
-            returnedValue = next(action);
+            returnedValue = next(action)
         }
 
-        logEntry.took = timer.now() - logEntry.started;
-        logEntry.nextState = stateTransformer(getState());
+        logEntry.duration = timer.now() - logEntry.started
+        logEntry.nextState = stateTransformer(getState())
 
-        flushBuffer(logBuffer);
-        logBuffer.length = 0;
+        flushBuffer(logBuffer, logWorker)
+        logBuffer.length = 0
 
-        if (logEntry.error) throw logEntry.error;
-        return returnedValue;
-    };
+        if (logEntry.error) throw logEntry.error
+        return returnedValue
+    }
 }
 
-export default createLogger;
+function flushBuffer(buffer, worker) {
+    buffer.forEach((logEntry, key) => {
+        const { started, startedTime, action, prevState, error } = logEntry
+        let { duration, nextState } = logEntry
+        const nextEntry = buffer[key + 1]
+        worker.postMessage({
+            data: logEntry,
+            type: 'insert'
+        })
+    })
+}
+
+export default createLogger
