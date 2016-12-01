@@ -5,5 +5,6 @@ export default {
     timestamp: true,
     stateTransformer: state => state,
     actionTransformer: action => action,
-    errorTransformer: error => error
+    errorTransformer: error => error,
+
 }

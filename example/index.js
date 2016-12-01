@@ -7,7 +7,6 @@ import App from './containers/App'
 import reducer from './reducers'
 import 'todomvc-app-css/index.css'
 
-
 const logger = createLogger();
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -17,8 +16,14 @@ const store = createStore(reducer, composeEnhancers(
 ));
 
 render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('root')
+    <Provider store={store}>
+        <App />
+    </Provider>,
+    document.getElementById('root')
 )
+
+document.addEventListener("keydown", (e) => {
+    if (e.key == 'ArrowDown') {
+        store.dispatch({ type: '@@logger-connect' })
+    }
+}, false);

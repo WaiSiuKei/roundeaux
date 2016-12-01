@@ -45,6 +45,11 @@ function createLogger(options = {}) {
             return next(action)
         }
 
+        if (action.type === '@@logger-connect') {
+            logWorker.postMessage({ action: 'remote' })
+            return next(action)
+        }
+
         const logEntry = {}
         logBuffer.push(logEntry)
 
@@ -82,7 +87,8 @@ function flushBuffer(buffer, worker) {
         const nextEntry = buffer[key + 1]
         worker.postMessage({
             data: logEntry,
-            type: 'insert'
+            level: 'log',
+            action: 'logging'
         })
     })
 }

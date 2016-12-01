@@ -41,11 +41,14 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "es6-promise": "^3.1.2",
+    "express": "^4.14.0",
     "jsondiffpatch": "^0.2.4",
     "react": "^15.3.0",
     "react-dom": "^15.3.0",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
+    "socket.io": "^1.7.1",
+    "socket.io-client": "^1.7.1",
     "todomvc-app-css": "^2.0.6"
   }
 }
